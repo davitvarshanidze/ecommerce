@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.api/Ecommerce.Api.csproj": {}
+    "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.Api/Ecommerce.Api.csproj": {}
   },
   "projects": {
-    "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.api/Ecommerce.Api.csproj": {
+    "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.Api/Ecommerce.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.api/Ecommerce.Api.csproj",
+        "projectUniqueName": "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.Api/Ecommerce.Api.csproj",
         "projectName": "Ecommerce.Api",
-        "projectPath": "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.api/Ecommerce.Api.csproj",
+        "projectPath": "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.Api/Ecommerce.Api.csproj",
         "packagesPath": "/Users/cynic/.nuget/packages/",
-        "outputPath": "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.api/obj/",
+        "outputPath": "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.Api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/cynic/.nuget/NuGet/NuGet.Config"

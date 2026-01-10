@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/hgKwC75fhk=",
+  "dgSpecHash": "HsrlNIZ0hyw=",
   "success": true,
-  "projectFilePath": "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.api/Ecommerce.Api.csproj",
+  "projectFilePath": "/Users/cynic/fun/ecommerce/backend/src/Ecommerce.Api/Ecommerce.Api.csproj",
   "expectedPackageFiles": [
     "/Users/cynic/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/cynic/.nuget/packages/microsoft.aspnetcore.openapi/10.0.0/microsoft.aspnetcore.openapi.10.0.0.nupkg.sha512",
