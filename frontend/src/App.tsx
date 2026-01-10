@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import { fetchProducts, type Product } from "./api";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+function formatPrice(cents: number) {
+  return (cents / 100).toFixed(2);
 }
 
-export default App
+export default function App() {
+  const [items, setItems] = useState<Product[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchProducts({ page: 1, pageSize: 12 })
+      .then((r) => setItems(r.items))
+      .catch((e) => setError(String(e)));
+  }, []);
+
+  return (
+    <div style={{ padding: 24, fontFamily: "system-ui" }}>
+      <h1>Ecommerce</h1>
+
+      {error && <p style={{ color: "crimson" }}>{error}</p>}
+
+      <ul>
+        {items.map((p) => (
+          <li key={p.id} style={{ marginBottom: 12 }}>
+            <strong>{p.name}</strong> — ${formatPrice(p.priceCents)}
+            {p.category ? <span> ({p.category.name})</span> : null}
+            {p.description ? <div>{p.description}</div> : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
