@@ -40,3 +40,21 @@ export async function fetchProduct(id: string): Promise<Product> {
   if (!res.ok) throw new Error(`Failed: ${res.status}`);
   return res.json();
 }
+
+import { getToken } from "./auth";
+
+function authHeaders(): HeadersInit {
+  const t = getToken();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
+
+export async function fetchMe() {
+  const res = await fetch(`${API_BASE}/auth/me`, {
+    headers: {
+      ...authHeaders(),
+    },
+  });
+
+  if (!res.ok) throw new Error(`Failed: ${res.status}`);
+  return res.json();
+}
