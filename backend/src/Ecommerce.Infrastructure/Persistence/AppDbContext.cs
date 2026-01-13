@@ -5,7 +5,9 @@ namespace Ecommerce.Infrastructure.Persistence;
 
 public sealed class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
 
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
@@ -28,9 +30,9 @@ public sealed class AppDbContext : DbContext
             b.Property(x => x.PriceCents).IsRequired();
 
             b.HasOne(x => x.Category)
-             .WithMany()
-             .HasForeignKey(x => x.CategoryId)
-             .OnDelete(DeleteBehavior.Restrict);
+                .WithMany()
+                .HasForeignKey(x => x.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<AppUser>(b =>

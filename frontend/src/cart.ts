@@ -1,4 +1,4 @@
-import type { Product } from "./api";
+import type {Product} from "./api";
 
 export type CartItem = {
     productId: string;
@@ -29,7 +29,7 @@ export function addToCart(cart: CartItem[], product: Product, qty = 1): CartItem
     const existing = cart.find((x) => x.productId === product.id);
     if (existing) {
         return cart.map((x) =>
-            x.productId === product.id ? { ...x, quantity: x.quantity + qty } : x
+            x.productId === product.id ? {...x, quantity: x.quantity + qty} : x
         );
     }
     return [
@@ -45,7 +45,7 @@ export function addToCart(cart: CartItem[], product: Product, qty = 1): CartItem
 
 export function updateQty(cart: CartItem[], productId: string, quantity: number): CartItem[] {
     if (quantity <= 0) return cart.filter((x) => x.productId !== productId);
-    return cart.map((x) => (x.productId === productId ? { ...x, quantity } : x));
+    return cart.map((x) => (x.productId === productId ? {...x, quantity} : x));
 }
 
 export function cartTotalCents(cart: CartItem[]): number {

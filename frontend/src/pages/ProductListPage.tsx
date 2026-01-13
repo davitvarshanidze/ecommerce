@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { fetchProducts, type Product } from "../api";
+import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {fetchProducts, type Product} from "../api";
 
 function formatPrice(cents: number) {
     return (cents / 100).toFixed(2);
@@ -11,19 +11,19 @@ export function ProductListPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchProducts({ page: 1, pageSize: 12 })
+        fetchProducts({page: 1, pageSize: 12})
             .then((r) => setItems(r.items))
             .catch((e) => setError(String(e)));
     }, []);
 
     return (
-        <div style={{ padding: 24, fontFamily: "system-ui" }}>
+        <div style={{padding: 24, fontFamily: "system-ui"}}>
             <h1>Ecommerce</h1>
-            {error && <p style={{ color: "crimson" }}>{error}</p>}
+            {error && <p style={{color: "crimson"}}>{error}</p>}
 
             <ul>
                 {items.map((p) => (
-                    <li key={p.id} style={{ marginBottom: 12 }}>
+                    <li key={p.id} style={{marginBottom: 12}}>
                         <Link to={`/products/${p.id}`}>
                             <strong>{p.name}</strong>
                         </Link>{" "}
