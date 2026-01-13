@@ -100,4 +100,34 @@ public sealed class OrdersController : ControllerBase
 
         return Ok(orders);
     }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetOne(Guid id)
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdStr, out var userId))
+            return Unauthorized();
+
+        var order = await _db.Orders.AsNoTracking()
+            .Where(o => o.Id == id && o.UserId == userId)
+            .Select(o => new
+            {
+                o.Id,
+                o.TotalCents,
+                o.CreatedAtUtc,
+                Items = o.Items
+                    .OrderBy(i => i.ProductName)
+                    .Select(i => new
+                    {
+                        i.ProductId,
+                        i.ProductName,
+                        i.UnitPriceCents,
+                        i.Quantity
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        return order is null ? NotFound() : Ok(order);
+    }
 }
