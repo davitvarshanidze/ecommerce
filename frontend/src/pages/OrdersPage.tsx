@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { fetchMyOrders, type OrderSummary } from "../api";
-import { getToken } from "../auth";
+import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {fetchMyOrders, type OrderSummary} from "../api";
+import {getToken} from "../auth";
 
 function formatPrice(cents: number) {
     return (cents / 100).toFixed(2);
@@ -23,17 +23,17 @@ export function OrdersPage() {
     }, []);
 
     return (
-        <div style={{ padding: 24, fontFamily: "system-ui" }}>
+        <div style={{padding: 24, fontFamily: "system-ui"}}>
             <h1>My Orders</h1>
 
-            {error && <p style={{ color: "crimson" }}>{error}</p>}
+            {error && <p style={{color: "crimson"}}>{error}</p>}
 
             {!error && items.length === 0 && <p>No orders yet.</p>}
 
             <ul>
                 {items.map((o) => (
-                    <li key={o.id} style={{ marginBottom: 12 }}>
-                        <strong>{o.id}</strong>
+                    <li key={o.id} style={{marginBottom: 12}}>
+                        <Link to={`/orders/${o.id}`}><strong>{o.id}</strong></Link>
                         <div>Total: ${formatPrice(o.totalCents)}</div>
                         <div>Items: {o.itemCount}</div>
                         <div>Created: {new Date(o.createdAtUtc).toLocaleString()}</div>

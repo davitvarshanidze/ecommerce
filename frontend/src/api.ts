@@ -99,3 +99,24 @@ export async function fetchMyOrders(): Promise<OrderSummary[]> {
     if (!res.ok) throw new Error(`Failed to fetch orders: ${res.status}`);
     return res.json();
 }
+
+export type OrderDetails = {
+    id: string;
+    totalCents: number;
+    createdAtUtc: string;
+    items: {
+        productId: string;
+        productName: string;
+        unitPriceCents: number;
+        quantity: number;
+    }[];
+};
+
+export async function fetchOrder(id: string): Promise<OrderDetails> {
+    const res = await fetch(`${API_BASE}/orders/${id}`, {
+        headers: {...authHeaders()},
+    });
+
+    if (!res.ok) throw new Error(`Failed to fetch order: ${res.status}`);
+    return res.json();
+}

@@ -9,6 +9,7 @@ import {fetchMe} from "./api";
 import {clearToken, getToken} from "./auth";
 import {LoginPage} from "./pages/LoginPage";
 import {OrdersPage} from "./pages/OrdersPage";
+import {OrderDetailsPage} from "./pages/OrderDetailsPage";
 
 export default function App() {
     const [me, setMe] = useState<any | null>(null);
@@ -66,6 +67,7 @@ export default function App() {
                 <Route path="/checkout" element={<CheckoutPage/>}/>
                 <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage/>}/>
                 <Route path="/orders" element={<OrdersPage/>}/>
+                <Route path="/orders/:id" element={<OrderDetailsPage/>}/>
             </Routes>
         </BrowserRouter>
     );
