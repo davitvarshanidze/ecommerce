@@ -69,3 +69,33 @@ export async function fetchMe() {
     if (!res.ok) throw new Error("Not authenticated");
     return res.json();
 }
+
+export type OrderSummary = {
+    id: string;
+    totalCents: number;
+    createdAtUtc: string;
+    itemCount: number;
+};
+
+export async function createOrder(items: { productId: string; quantity: number }[]) {
+    const res = await fetch(`${API_BASE}/orders`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...authHeaders(),
+        },
+        body: JSON.stringify({items}),
+    });
+
+    if (!res.ok) throw new Error(`Failed to create order: ${res.status}`);
+    return res.json();
+}
+
+export async function fetchMyOrders(): Promise<OrderSummary[]> {
+    const res = await fetch(`${API_BASE}/orders/my`, {
+        headers: {...authHeaders()},
+    });
+
+    if (!res.ok) throw new Error(`Failed to fetch orders: ${res.status}`);
+    return res.json();
+}

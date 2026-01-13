@@ -8,6 +8,7 @@ import {useEffect, useState} from "react";
 import {fetchMe} from "./api";
 import {clearToken, getToken} from "./auth";
 import {LoginPage} from "./pages/LoginPage";
+import {OrdersPage} from "./pages/OrdersPage";
 
 export default function App() {
     const [me, setMe] = useState<any | null>(null);
@@ -37,6 +38,7 @@ export default function App() {
             <div style={{padding: 12, fontFamily: "system-ui"}}>
                 <Link to="/" style={{marginRight: 12}}>Home</Link>
                 <Link to="/cart" style={{marginRight: 12}}>Cart</Link>
+                <Link to="/orders" style={{marginRight: 12}}>Orders</Link>
 
                 {me ? (
                     <>
@@ -62,7 +64,8 @@ export default function App() {
                 <Route path="/products/:id" element={<ProductDetailPage/>}/>
                 <Route path="/cart" element={<CartPage/>}/>
                 <Route path="/checkout" element={<CheckoutPage/>}/>
-                <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage/>}/>
+                <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage/>}/>
+                <Route path="/orders" element={<OrdersPage/>}/>
             </Routes>
         </BrowserRouter>
     );

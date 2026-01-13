@@ -1,6 +1,7 @@
 import {useMemo, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {cartTotalCents, loadCart, saveCart, type CartItem} from "../cart";
+import {createOrder} from "../api";
 
 function formatPrice(cents: number) {
     return (cents / 100).toFixed(2);
@@ -13,11 +14,6 @@ type Address = {
     city: string;
     country: string;
 };
-
-function generateOrderNumber() {
-    // simple readable mock id
-    return "ORD-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-}
 
 export function CheckoutPage() {
     const navigate = useNavigate();
@@ -57,16 +53,18 @@ export function CheckoutPage() {
 
         setSubmitting(true);
         try {
-            // Mock "payment + order creation"
-            await new Promise((r) => setTimeout(r, 600));
+            const payload = cart.map((x) => ({
+                productId: x.productId,
+                quantity: x.quantity,
+            }));
 
-            const orderNumber = generateOrderNumber();
+            const created = await createOrder(payload);
 
             // Save last order confirmation info (optional)
             localStorage.setItem(
                 "ecommerce_last_order_v1",
                 JSON.stringify({
-                    orderNumber,
+                    orderId: created.orderId ?? created.id ?? null,
                     createdAt: new Date().toISOString(),
                     totalCents: total,
                     items: cart,
@@ -77,9 +75,14 @@ export function CheckoutPage() {
             // Clear cart
             saveCart([]);
 
-            navigate(`/order-confirmation/${orderNumber}`);
+            const orderId = created.orderId ?? created.id;
+            navigate(`/order-confirmation/${orderId}`);
         } catch (e) {
-            setError(String(e));
+            setError(
+                String(e).includes("401") || String(e).toLowerCase().includes("auth")
+                    ? "You must be logged in to place an order. Please log in and try again."
+                    : String(e)
+            );
             setSubmitting(false);
         }
     }
