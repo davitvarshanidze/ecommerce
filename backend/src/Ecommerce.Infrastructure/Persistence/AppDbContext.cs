@@ -12,6 +12,8 @@ public sealed class AppDbContext : DbContext
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<AppUser> Users => Set<AppUser>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +46,35 @@ public sealed class AppDbContext : DbContext
             b.Property(x => x.PasswordHash).HasMaxLength(500).IsRequired();
             b.Property(x => x.Role).HasMaxLength(50).IsRequired();
             b.Property(x => x.CreatedAtUtc).IsRequired();
+        });
+
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.Property(x => x.TotalCents).IsRequired();
+            b.Property(x => x.CreatedAtUtc).IsRequired();
+
+            b.HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasMany(x => x.Items)
+                .WithOne(x => x.Order)
+                .HasForeignKey(x => x.OrderId);
+        });
+
+        modelBuilder.Entity<OrderItem>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.Property(x => x.ProductName).HasMaxLength(200).IsRequired();
+            b.Property(x => x.UnitPriceCents).IsRequired();
+            b.Property(x => x.Quantity).IsRequired();
+
+            b.HasOne(x => x.Product)
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
