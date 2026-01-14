@@ -120,3 +120,20 @@ export async function fetchOrder(id: string): Promise<OrderDetails> {
     if (!res.ok) throw new Error(`Failed to fetch order: ${res.status}`);
     return res.json();
 }
+
+export async function adminCreateProduct(input: {
+    name: string;
+    description?: string | null;
+    priceCents: number;
+    imageUrl?: string | null;
+    categorySlug?: string | null;
+    isActive: boolean;
+}) {
+    const res = await fetch(`${API_BASE}/admin/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify(input),
+    });
+    if (!res.ok) throw new Error(`Admin create failed: ${res.status}`);
+    return res.json();
+}
