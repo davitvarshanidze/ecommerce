@@ -27,6 +27,8 @@ public sealed class AdminProductsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] UpsertProductRequest req)
     {
         var category = await ResolveCategory(req.CategorySlug);
+        if (category is null)
+            return BadRequest(new { message = "Invalid categorySlug." });
 
         var p = new Product
         {
@@ -36,7 +38,7 @@ public sealed class AdminProductsController : ControllerBase
             PriceCents = req.PriceCents,
             ImageUrl = req.ImageUrl,
             IsActive = req.IsActive,
-            CategoryId = category?.Id
+            CategoryId = category.Id
         };
 
         _db.Products.Add(p);
@@ -51,13 +53,15 @@ public sealed class AdminProductsController : ControllerBase
         if (p is null) return NotFound();
 
         var category = await ResolveCategory(req.CategorySlug);
+        if (category is null)
+            return BadRequest(new { message = "Invalid categorySlug." });
 
         p.Name = req.Name.Trim();
         p.Description = req.Description;
         p.PriceCents = req.PriceCents;
         p.ImageUrl = req.ImageUrl;
         p.IsActive = req.IsActive;
-        p.CategoryId = category?.Id;
+        p.CategoryId = category.Id;
 
         await _db.SaveChangesAsync();
         return Ok();
