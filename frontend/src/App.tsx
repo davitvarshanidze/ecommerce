@@ -75,7 +75,20 @@ export default function App() {
                 <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage/>}/>
                 <Route path="/orders" element={<OrdersPage/>}/>
                 <Route path="/orders/:id" element={<OrderDetailsPage/>}/>
-                <Route path="/admin/products" element={<AdminProductsPage/>}/>
+                <Route
+                    path="/admin/products"
+                    element={
+                        me?.role === "Admin" ? (
+                            <AdminProductsPage/>
+                        ) : (
+                            <div style={{padding: 24, fontFamily: "system-ui"}}>
+                                <h2>Forbidden</h2>
+                                <p>You must be an admin to view this page.</p>
+                                <Link to="/">Go home</Link>
+                            </div>
+                        )
+                    }
+                />
             </Routes>
         </BrowserRouter>
     );

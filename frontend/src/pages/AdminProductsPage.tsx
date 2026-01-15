@@ -1,8 +1,8 @@
 import {useEffect, useState} from "react";
 import {
     adminCreateProduct,
-    adminDeleteProduct,
     adminFetchProducts,
+    adminUpdateProduct,
     type AdminProduct,
 } from "../api";
 
@@ -15,22 +15,12 @@ export function AdminProductsPage() {
     const [items, setItems] = useState<AdminProduct[]>([]);
     const [loading, setLoading] = useState(false);
 
-    async function onCreate() {
-        setMsg(null);
-        try {
-            const res = await adminCreateProduct({
-                name,
-                priceCents: price,
-                categorySlug,
-                isActive,
-            });
-            setMsg(`Created: ${res.id ?? res.Id ?? res.pId ?? res?.id ?? JSON.stringify(res)}`);
-            setName("");
-            await load();
-        } catch (e) {
-            setMsg(String(e));
-        }
-    }
+    // inline edit state
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editName, setEditName] = useState("");
+    const [editPrice, setEditPrice] = useState(0);
+    const [editCategorySlug, setEditCategorySlug] = useState("");
+    const [editIsActive, setEditIsActive] = useState(true);
 
     async function load() {
         setLoading(true);
@@ -49,12 +39,62 @@ export function AdminProductsPage() {
         load();
     }, []);
 
-    async function onDelete(id: string) {
-        if (!confirm("Delete this product?")) return;
+    async function onCreate() {
         setMsg(null);
         try {
-            await adminDeleteProduct(id);
-            setMsg("Deleted.");
+            const res = await adminCreateProduct({
+                name,
+                priceCents: price,
+                categorySlug,
+                isActive,
+            });
+            setMsg(`Created: ${res.id ?? res.Id ?? res.pId ?? res?.id ?? JSON.stringify(res)}`);
+            setName("");
+            await load();
+        } catch (e) {
+            setMsg(String(e));
+        }
+    }
+
+    function startEdit(p: AdminProduct) {
+        setEditingId(p.id);
+        setEditName(p.name);
+        setEditPrice(p.priceCents);
+        setEditCategorySlug(p.category?.slug ?? "");
+        setEditIsActive(p.isActive);
+    }
+
+    function cancelEdit() {
+        setEditingId(null);
+    }
+
+    async function saveEdit(id: string) {
+        setMsg(null);
+        try {
+            await adminUpdateProduct(id, {
+                name: editName,
+                priceCents: editPrice,
+                categorySlug: editCategorySlug || null,
+                isActive: editIsActive,
+            });
+            setMsg("Saved.");
+            setEditingId(null);
+            await load();
+        } catch (e) {
+            setMsg(String(e));
+        }
+    }
+
+    async function toggleActive(p: AdminProduct) {
+        setMsg(null);
+        try {
+            await adminUpdateProduct(p.id, {
+                name: p.name,
+                priceCents: p.priceCents,
+                categorySlug: p.category?.slug ?? null,
+                isActive: !p.isActive,
+            });
+            setMsg(!p.isActive ? "Activated." : "Deactivated.");
             await load();
         } catch (e) {
             setMsg(String(e));
@@ -62,20 +102,38 @@ export function AdminProductsPage() {
     }
 
     return (
-        <div style={{padding: 24, fontFamily: "system-ui", maxWidth: 600}}>
+        <div style={{padding: 24, fontFamily: "system-ui", maxWidth: 800}}>
             <h1>Admin: Products</h1>
 
             {msg && <p>{msg}</p>}
 
-            <div style={{display: "grid", gap: 10}}>
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" style={{padding: 8}}/>
-                <input value={price} onChange={(e) => setPrice(Number(e.target.value))} type="number"
-                       placeholder="Price cents" style={{padding: 8}}/>
-                <input value={categorySlug} onChange={(e) => setCategorySlug(e.target.value)}
-                       placeholder="Category slug (e.g. toys)" style={{padding: 8}}/>
+            <div style={{display: "grid", gap: 10, maxWidth: 600}}>
+                <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name"
+                    style={{padding: 8}}
+                />
+                <input
+                    value={price}
+                    onChange={(e) => setPrice(Number(e.target.value))}
+                    type="number"
+                    placeholder="Price cents"
+                    style={{padding: 8}}
+                />
+                <input
+                    value={categorySlug}
+                    onChange={(e) => setCategorySlug(e.target.value)}
+                    placeholder="Category slug (e.g. toys)"
+                    style={{padding: 8}}
+                />
 
                 <label style={{display: "flex", gap: 8, alignItems: "center"}}>
-                    <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)}/>
+                    <input
+                        type="checkbox"
+                        checked={isActive}
+                        onChange={(e) => setIsActive(e.target.checked)}
+                    />
                     Active
                 </label>
 
@@ -87,29 +145,78 @@ export function AdminProductsPage() {
             <h2>All products</h2>
 
             {loading && <p>Loading…</p>}
-
             {!loading && items.length === 0 && <p>No products found.</p>}
 
-            <ul style={{display: "grid", gap: 10, paddingLeft: 18}}>
-                {items.map((p) => (
-                    <li key={p.id}>
-                        <div style={{display: "flex", justifyContent: "space-between", gap: 12}}>
-                            <div>
-                                <div>
-                                    <strong>{p.name}</strong>
-                                    {!p.isActive && <span> (inactive)</span>}
-                                </div>
-                                <div>${(p.priceCents / 100).toFixed(2)}</div>
-                                <div style={{opacity: 0.8}}>
-                                    category: {p.category?.slug ?? "(none)"}
-                                </div>
-                                <div style={{opacity: 0.7, fontSize: 12}}>{p.id}</div>
-                            </div>
+            <ul style={{display: "grid", gap: 12, paddingLeft: 18}}>
+                {items.map((p) => {
+                    const isEditing = editingId === p.id;
 
-                            <button onClick={() => onDelete(p.id)}>Delete</button>
-                        </div>
-                    </li>
-                ))}
+                    return (
+                        <li key={p.id}>
+                            <div style={{display: "flex", justifyContent: "space-between", gap: 16}}>
+                                <div style={{flex: 1}}>
+                                    {!isEditing ? (
+                                        <>
+                                            <div>
+                                                <strong>{p.name}</strong>
+                                                {!p.isActive && <span> (inactive)</span>}
+                                            </div>
+                                            <div>${(p.priceCents / 100).toFixed(2)}</div>
+                                            <div style={{opacity: 0.8}}>
+                                                category: {p.category?.slug ?? "(none)"}
+                                            </div>
+                                            <div style={{opacity: 0.7, fontSize: 12}}>{p.id}</div>
+                                        </>
+                                    ) : (
+                                        <div style={{display: "grid", gap: 8, maxWidth: 520}}>
+                                            <input
+                                                value={editName}
+                                                onChange={(e) => setEditName(e.target.value)}
+                                                style={{padding: 8}}
+                                            />
+                                            <input
+                                                value={editPrice}
+                                                onChange={(e) => setEditPrice(Number(e.target.value))}
+                                                type="number"
+                                                style={{padding: 8}}
+                                            />
+                                            <input
+                                                value={editCategorySlug}
+                                                onChange={(e) => setEditCategorySlug(e.target.value)}
+                                                placeholder="category slug"
+                                                style={{padding: 8}}
+                                            />
+                                            <label style={{display: "flex", gap: 8, alignItems: "center"}}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={editIsActive}
+                                                    onChange={(e) => setEditIsActive(e.target.checked)}
+                                                />
+                                                Active
+                                            </label>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div style={{display: "grid", gap: 8, alignContent: "start"}}>
+                                    {!isEditing ? (
+                                        <>
+                                            <button onClick={() => startEdit(p)}>Edit</button>
+                                            <button onClick={() => toggleActive(p)}>
+                                                {p.isActive ? "Deactivate" : "Activate"}
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button onClick={() => saveEdit(p.id)}>Save</button>
+                                            <button onClick={cancelEdit}>Cancel</button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );
