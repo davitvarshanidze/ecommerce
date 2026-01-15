@@ -42,6 +42,12 @@ export default function App() {
                 <Link to="/cart" style={{marginRight: 12}}>Cart</Link>
                 <Link to="/orders" style={{marginRight: 12}}>Orders</Link>
 
+                {me?.role === "Admin" && (
+                    <Link to="/admin/products" style={{marginRight: 12}}>
+                        Admin
+                    </Link>
+                )}
+
                 {me ? (
                     <>
                         <span style={{marginRight: 12}}>Logged in as {me.email}</span>

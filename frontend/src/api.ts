@@ -163,3 +163,23 @@ export async function adminDeleteProduct(id: string) {
     });
     if (!res.ok) throw new Error(`Admin delete failed: ${res.status}`);
 }
+
+export async function adminUpdateProduct(
+    id: string,
+    input: {
+        name: string;
+        description?: string | null;
+        priceCents: number;
+        imageUrl?: string | null;
+        categorySlug?: string | null;
+        isActive: boolean;
+    }
+) {
+    const res = await fetch(`${API_BASE}/admin/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify(input),
+    });
+
+    if (!res.ok) throw new Error(`Admin update failed: ${res.status}`);
+}
