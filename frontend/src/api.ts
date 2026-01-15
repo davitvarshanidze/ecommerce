@@ -131,9 +131,35 @@ export async function adminCreateProduct(input: {
 }) {
     const res = await fetch(`${API_BASE}/admin/products`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: {"Content-Type": "application/json", ...authHeaders()},
         body: JSON.stringify(input),
     });
     if (!res.ok) throw new Error(`Admin create failed: ${res.status}`);
     return res.json();
+}
+
+export type AdminProduct = {
+    id: string;
+    name: string;
+    description: string | null;
+    priceCents: number;
+    imageUrl: string | null;
+    isActive: boolean;
+    category: Category | null;
+};
+
+export async function adminFetchProducts(): Promise<AdminProduct[]> {
+    const res = await fetch(`${API_BASE}/admin/products`, {
+        headers: {...authHeaders()},
+    });
+    if (!res.ok) throw new Error(`Admin fetch failed: ${res.status}`);
+    return res.json();
+}
+
+export async function adminDeleteProduct(id: string) {
+    const res = await fetch(`${API_BASE}/admin/products/${id}`, {
+        method: "DELETE",
+        headers: {...authHeaders()},
+    });
+    if (!res.ok) throw new Error(`Admin delete failed: ${res.status}`);
 }

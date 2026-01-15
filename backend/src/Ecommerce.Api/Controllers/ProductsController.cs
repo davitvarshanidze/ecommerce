@@ -12,55 +12,57 @@ public sealed class ProductsController : ControllerBase
     public ProductsController(AppDbContext db) => _db = db;
 
     [HttpGet]
-public async Task<IActionResult> GetMany(
-    [FromQuery] string? search,
-    [FromQuery] string? category,
-    [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 12)
-{
-    page = Math.Max(1, page);
-    pageSize = Math.Clamp(pageSize, 1, 100);
-
-    var query = _db.Products.AsNoTracking()
-        .Include(p => p.Category)
-        .Where(p => p.IsActive);
-
-    if (!string.IsNullOrWhiteSpace(search))
+    public async Task<IActionResult> GetMany(
+        [FromQuery] string? search,
+        [FromQuery] string? category,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 12)
     {
-        var s = search.Trim().ToLower();
-        query = query.Where(p => p.Name.ToLower().Contains(s));
-    }
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
 
-    if (!string.IsNullOrWhiteSpace(category))
-    {
-        var c = category.Trim().ToLower();
-        query = query.Where(p => p.Category != null && p.Category.Slug == c);
-    }
+        var query = _db.Products.AsNoTracking()
+            .Include(p => p.Category)
+            .Where(p => p.IsActive);
 
-    var totalCount = await query.CountAsync();
-
-    var items = await query
-        .OrderBy(p => p.Name)
-        .Skip((page - 1) * pageSize)
-        .Take(pageSize)
-        .Select(p => new
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            p.Id,
-            p.Name,
-            p.Description,
-            p.PriceCents,
-            p.ImageUrl,
-            Category = p.Category == null ? null : new
-            {
-                p.Category.Id,
-                p.Category.Name,
-                p.Category.Slug
-            }
-        })
-        .ToListAsync();
+            var s = search.Trim().ToLower();
+            query = query.Where(p => p.Name.ToLower().Contains(s));
+        }
 
-    return Ok(new { totalCount, page, pageSize, items });
-}
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            var c = category.Trim().ToLower();
+            query = query.Where(p => p.Category != null && p.Category.Slug == c);
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderBy(p => p.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new
+            {
+                p.Id,
+                p.Name,
+                p.Description,
+                p.PriceCents,
+                p.ImageUrl,
+                Category = p.Category == null
+                    ? null
+                    : new
+                    {
+                        p.Category.Id,
+                        p.Category.Name,
+                        p.Category.Slug
+                    }
+            })
+            .ToListAsync();
+
+        return Ok(new { totalCount, page, pageSize, items });
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetOne(Guid id)
