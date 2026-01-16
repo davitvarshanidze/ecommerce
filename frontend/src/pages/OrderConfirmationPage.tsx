@@ -1,41 +1,71 @@
+import {useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
+import {fetchOrder, type OrderDetails} from "../api";
 
 function formatPrice(cents: number) {
     return (cents / 100).toFixed(2);
 }
 
 export function OrderConfirmationPage() {
-    const {orderNumber} = useParams<{ orderNumber: string }>();
+    // Support either param name depending on your route definition
+    const params = useParams();
+    const orderId = (params as any).orderId ?? (params as any).orderNumber;
 
-    const raw = localStorage.getItem("ecommerce_last_order_v1");
-    const last = raw ? JSON.parse(raw) : null;
+    const [order, setOrder] = useState<OrderDetails | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const matches = last && orderNumber && last.orderNumber === orderNumber;
+    useEffect(() => {
+        if (!orderId) return;
+
+        setError(null);
+        setOrder(null);
+
+        fetchOrder(orderId)
+            .then(setOrder)
+            .catch((e) => setError(String(e)));
+    }, [orderId]);
 
     return (
         <div style={{padding: 24, fontFamily: "system-ui", maxWidth: 800}}>
             <h1>Order confirmed</h1>
             <p>
-                Order number: <strong>{orderNumber}</strong>
+                Order id: <strong>{orderId}</strong>
             </p>
 
-            {matches ? (
+            {error && (
+                <p style={{color: "crimson"}}>
+                    Could not load order details. Are you logged in? ({error})
+                </p>
+            )}
+
+            {!error && !order && <p>Loading order details…</p>}
+
+            {order && (
                 <>
-                    <p>Total: ${formatPrice(last.totalCents)}</p>
+                    <p>
+                        Created: {new Date(order.createdAtUtc).toLocaleString()}
+                    </p>
+                    <p>
+                        Total: <strong>${formatPrice(order.totalCents)}</strong>
+                    </p>
+
                     <h3>Items</h3>
                     <ul>
-                        {last.items.map((x: any) => (
+                        {order.items.map((x) => (
                             <li key={x.productId}>
-                                {x.name} × {x.quantity}
+                                {x.productName} — ${formatPrice(x.unitPriceCents)} × {x.quantity} = ${
+                                formatPrice(x.unitPriceCents * x.quantity)
+                            }
                             </li>
                         ))}
                     </ul>
                 </>
-            ) : (
-                <p>(No stored details for this order in localStorage.)</p>
             )}
 
-            <Link to="/">Continue shopping</Link>
+            <div style={{marginTop: 12, display: "flex", gap: 12}}>
+                <Link to="/orders">View my orders</Link>
+                <Link to="/">Continue shopping</Link>
+            </div>
         </div>
     );
 }

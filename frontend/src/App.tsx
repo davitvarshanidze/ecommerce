@@ -90,6 +90,7 @@ export default function App() {
                     }
                 />
             </Routes>
+            <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage/>}/>
         </BrowserRouter>
     );
 }
