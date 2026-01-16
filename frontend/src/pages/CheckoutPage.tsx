@@ -2,6 +2,8 @@ import {useMemo, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {cartTotalCents, loadCart, saveCart, type CartItem} from "../cart";
 import {createOrder} from "../api";
+import {useEffect} from "react";
+import {getToken} from "../auth";
 
 function formatPrice(cents: number) {
     return (cents / 100).toFixed(2);
@@ -28,6 +30,12 @@ export function CheckoutPage() {
         city: "",
         country: "Georgia",
     });
+
+    useEffect(() => {
+        if (!getToken()) {
+            navigate("/login", {state: {from: "/checkout"}});
+        }
+    }, [navigate]);
 
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);

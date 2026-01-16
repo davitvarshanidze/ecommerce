@@ -1,10 +1,12 @@
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {login} from "../api";
 import {setToken} from "../auth";
 
 export function LoginPage() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = (location.state as any)?.from ?? "/";
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -20,7 +22,7 @@ export function LoginPage() {
             const res = await login(email, password);
             setToken(res.accessToken);
             window.dispatchEvent(new Event("auth-changed"));
-            navigate("/");
+            navigate(from);
         } catch (err) {
             setError("Invalid email or password");
         } finally {
