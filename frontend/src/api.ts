@@ -159,8 +159,9 @@ export async function adminFetchProducts(): Promise<AdminProduct[]> {
 export async function adminDeleteProduct(id: string) {
     const res = await fetch(`${API_BASE}/admin/products/${id}`, {
         method: "DELETE",
-        headers: {...authHeaders()},
+        headers: { ...authHeaders() },
     });
+
     if (!res.ok) throw new Error(`Admin delete failed: ${res.status}`);
 }
 

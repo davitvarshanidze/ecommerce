@@ -10,7 +10,7 @@ import {clearToken, getToken} from "./auth";
 import {LoginPage} from "./pages/LoginPage";
 import {OrdersPage} from "./pages/OrdersPage";
 import {OrderDetailsPage} from "./pages/OrderDetailsPage";
-import {AdminProductsPage} from "./pages/AdminProductsPage.tsx";
+import {AdminProductsPage} from "./pages/AdminProductsPage";
 
 export default function App() {
     const [me, setMe] = useState<any | null>(null);
@@ -90,7 +90,6 @@ export default function App() {
                     }
                 />
             </Routes>
-            <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage/>}/>
         </BrowserRouter>
     );
 }
