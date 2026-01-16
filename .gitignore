@@ -1,0 +1,10 @@
+# .NET build outputs
+**/bin/
+**/obj/
+
+# Rider / JetBrains
+.idea/
+
+# User-specific settings
+*.user
+*.suo
