@@ -4,6 +4,7 @@
 
 # Rider / JetBrains
 .idea/
+**/.idea/
 
 # User-specific settings
 *.user
