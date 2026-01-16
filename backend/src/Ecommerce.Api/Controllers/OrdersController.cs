@@ -17,7 +17,12 @@ public sealed class OrdersController : ControllerBase
 
     public sealed record CreateOrderItemRequest(Guid ProductId, int Quantity);
 
-    public sealed record CreateOrderRequest(List<CreateOrderItemRequest> Items);
+    public sealed record CreateOrderRequest(
+        List<CreateOrderItemRequest> Items,
+        string? PaymentMethod,
+        string? CardBrand,
+        string? CardLast4
+    );
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderRequest req)
@@ -38,6 +43,33 @@ public sealed class OrdersController : ControllerBase
         if (items.Count == 0)
             return BadRequest(new { message = "Cart is empty." });
 
+        var paymentMethod = string.IsNullOrWhiteSpace(req.PaymentMethod)
+            ? "Mock"
+            : req.PaymentMethod.Trim();
+
+        // Only allow a small set of values (mock payments only)
+        if (paymentMethod != "Card" && paymentMethod != "Cash" && paymentMethod != "Mock")
+            return BadRequest(new { message = "Invalid paymentMethod." });
+
+        string? cardBrand = null;
+        string? cardLast4 = null;
+
+        if (paymentMethod == "Card")
+        {
+            cardBrand = string.IsNullOrWhiteSpace(req.CardBrand) ? null : req.CardBrand.Trim();
+
+            var last4 = string.IsNullOrWhiteSpace(req.CardLast4) ? null : req.CardLast4.Trim();
+            if (last4 is not null)
+            {
+                // keep only digits and require exactly 4
+                last4 = new string(last4.Where(char.IsDigit).ToArray());
+                if (last4.Length != 4)
+                    return BadRequest(new { message = "cardLast4 must be exactly 4 digits." });
+            }
+
+            cardLast4 = last4;
+        }
+
         var productIds = items.Select(x => x.ProductId).ToList();
 
         var products = await _db.Products.AsNoTracking()
@@ -50,7 +82,10 @@ public sealed class OrdersController : ControllerBase
         var order = new Order
         {
             UserId = userId,
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAtUtc = DateTime.UtcNow,
+            PaymentMethod = paymentMethod,
+            CardBrand = cardBrand,
+            CardLast4 = cardLast4
         };
 
         foreach (var it in items)
@@ -75,7 +110,10 @@ public sealed class OrdersController : ControllerBase
         {
             orderId = order.Id,
             totalCents = order.TotalCents,
-            createdAtUtc = order.CreatedAtUtc
+            createdAtUtc = order.CreatedAtUtc,
+            paymentMethod = order.PaymentMethod,
+            cardBrand = order.CardBrand,
+            cardLast4 = order.CardLast4
         });
     }
 
@@ -115,6 +153,9 @@ public sealed class OrdersController : ControllerBase
                 o.Id,
                 o.TotalCents,
                 o.CreatedAtUtc,
+                o.PaymentMethod,
+                o.CardBrand,
+                o.CardLast4,
                 Items = o.Items
                     .OrderBy(i => i.ProductName)
                     .Select(i => new
